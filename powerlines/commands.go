@@ -10,7 +10,7 @@ const (
 	AllPlayers
 	AllPlayersPosition
 	SendMsg
-	RecieveMsg
+	ReceiveMsg
 )
 var AllCommands = []Command{
 	Hello,
@@ -20,7 +20,7 @@ var AllCommands = []Command{
 	AllPlayers,
 	AllPlayersPosition,
 	SendMsg,
-	RecieveMsg,
+	ReceiveMsg,
 }
 
 type CommandAlias struct {
@@ -65,6 +65,18 @@ var CommandAliases = map[Command]CommandAlias {
 		"Return metadata about the current world being played",
 	short:
 		"WorldInfo",
+	},
+	SendMsg: CommandAlias{
+	long:
+		"Send a message to a player",
+	short:
+		"SendMsg",
+	},
+	ReceiveMsg: CommandAlias{
+	long:
+		"Receive a message",
+	short:
+		"ReceiveMsg",
 	},
 }
 
