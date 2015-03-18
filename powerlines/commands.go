@@ -18,6 +18,5 @@ var CommandReadable = map[Command]string{
 	AllPlayers: "sakljsdal",
 	AllPlayersPosition: "klsjsshkjsa",
 	WorldInfo: "sdakllsdaj",
-	
 }
 
