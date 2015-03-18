@@ -1,2 +1,2 @@
 # Powerlines
-Multiplayer server for https://github.com/karlbloedorn/ElectricEngine
+Multiplayer server for https://github.com/karlbloedorn/ElectricEngine. Uses golang and TCP.
