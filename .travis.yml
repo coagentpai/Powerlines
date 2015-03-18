@@ -1,1 +1,5 @@
 language: go
+notifications:
+  hipchat:
+    rooms:
+      secure: IAIrbN2CfmLGK577F/St35pt8h5P8iA/p6C6hMDmTg6jORl0MtSKuovyxV4uNIrC9X148Z+nzLUBSSYFOFfow40EvYpAZ5mYsLr3a1PZ91vGGwmEL3oAPimphaNuoi3djYFToI/+RjUTzDV88Rb/SHkGk6Wt/BM9v2Z71dU9vv4=
