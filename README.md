@@ -1,2 +1,2 @@
 # Powerlines
-Multiplayer server for ElectricEngine
+Multiplayer server for https://github.com/karlbloedorn/ElectricEngine
