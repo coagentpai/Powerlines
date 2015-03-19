@@ -10,7 +10,6 @@ const (
 	AllPlayersRequest
 	AllPlayersPositionRequest
 	SendMsgRequest
-	ReceiveMsgRequest
 	HelloResponse
 	GoodbyeResponse
 	WorldInfoResponse
@@ -20,6 +19,9 @@ const (
 	SendMsgResponse
 	ReceiveMsgResponse
 )
+
+const Version = "d19032.1"
+
 var AllFrameIds = []FrameId{
 	HelloRequest,
 	GoodbyeRequest,
@@ -28,7 +30,6 @@ var AllFrameIds = []FrameId{
 	AllPlayersRequest,
 	AllPlayersPositionRequest,
 	SendMsgRequest,
-	ReceiveMsgRequest,
 	HelloResponse,
 	GoodbyeResponse,
 	WorldInfoResponse,
@@ -40,67 +41,124 @@ var AllFrameIds = []FrameId{
 }
 
 type FrameAlias struct {
-	id FrameId
-	short string
-	long string
+	Id FrameId
+	Short string
+	Long string
 }
 
 var FrameRequestAliases = map[FrameId]FrameAlias {
 	HelloRequest: FrameAlias{
-	long:
+	Long:
 		"Say hello to a server",
-	short:
+	Short:
 		"HelloRequest",
 	},
     GoodbyeRequest: FrameAlias{
-	long:
+	Long:
 		"Say goodbye to the server",
-	short:
+	Short:
 		"GoodbyeRequest",
 	},
 	PlayerJoinRequest: FrameAlias{
-	long:
+	Long:
 		"Join the world",
-	short:
+	Short:
 		"PlayerJoinRequest",
 	},
 	AllPlayersRequest: FrameAlias{
-	long:
+	Long:
 		"List all connected players",
-	short:
+	Short:
 		"AllPlayersRequest",
 	},
 	AllPlayersPositionRequest: FrameAlias{
-	long:
+	Long:
 		"List the position of all players",
-	short:
+	Short:
 		"AllPlayersPositionRequest",
 	},
 	WorldInfoRequest: FrameAlias{
-	long:
+	Long:
 		"Return metadata about the current world being played",
-	short:
+	Short:
 		"WorldInfoRequest",
 	},
 	SendMsgRequest: FrameAlias{
-	long:
+	Long:
 		"Send a message to a player",
-	short:
+	Short:
 		"SendMsgRequest",
-	},
-	ReceiveMsgRequest: FrameAlias{
-	long:
-		"Receive a message",
-	short:
-		"ReceiveMsgRequest",
 	},
 }
 
-var FrameAliases = map[FrameId]FrameAlias {}
+var FrameResponseAliases = map[FrameId]FrameAlias {
+	HelloResponse: FrameAlias{
+	Long:
+		"Say hello to a server",
+	Short:
+		"HelloResponse",
+	},
+    GoodbyeResponse: FrameAlias{
+	Long:
+		"Say goodbye to the server",
+	Short:
+		"GoodbyeResponse",
+	},
+	PlayerJoinResponse: FrameAlias{
+	Long:
+		"Join the world",
+	Short:
+		"PlayerJoinResponse",
+	},
+	AllPlayersResponse: FrameAlias{
+	Long:
+		"List all connected players",
+	Short:
+		"AllPlayersResponse",
+	},
+	AllPlayersPositionResponse: FrameAlias{
+	Long:
+		"List the position of all players",
+	Short:
+		"AllPlayersPositionResponse",
+	},
+	WorldInfoResponse: FrameAlias{
+	Long:
+		"Return metadata about the current world being played",
+	Short:
+		"WorldInfoResponse",
+	},
+	SendMsgResponse: FrameAlias{
+	Long:
+		"Send a message to a player",
+	Short:
+		"SendMsgResponse",
+	},
+	ReceiveMsgResponse: FrameAlias{
+	Long:
+		"Receive a message",
+	Short:
+		"ReceiveMsgResponse",
+	},
+}
+
+type HelloRequestFrame struct {
+	Version string `codec:"version"`
+}
+
+type HelloResponseFrame struct {
+	Version string `codec:"version"`
+	PlayersOnline uint8 `codec:"online"`
+	PlayerCapacity uint8 `codec:"capacity"`
+}
 
 func init() {
-	for id, alias := range FrameAliases {
-		alias.id = id
+	for id, alias := range FrameResponseAliases {
+		alias.Id = id
+	}
+
+	for id, alias := range FrameRequestAliases {
+		alias.Id = id
 	}
 }
 

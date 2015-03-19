@@ -1,0 +1,24 @@
+/*
+This file was automatically generated at {{.TimeStr}}
+*/
+#include <stdint.h>
+
+#define EEFrameVersion "{{ .Version }}"
+
+// FrameIds of all request frames
+{{ range $key, $value := .RequestAliases }}#define EE{{ $value.Short }} {{ $key }}
+{{ end }}
+
+// FrameIds of all response frames
+{{ range $key, $value := .ResponseAliases }}#define EE{{ $value.Short }} {{ $key }}
+{{ end }}
+
+//Structs for each frame type
+typedef struct {
+{{ range .HelloFields}}    {{.Type}} {{.Name}};
+{{end}}
+} EEHelloFrame;
+
+// Library functions
+void *decodeBuffer(msgpack_sbuffer *buf,  int *frame_id);
+
