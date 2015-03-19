@@ -38,12 +38,12 @@ type Player struct {
 }
 
 type ClientPacket struct {
-	Command int64 `codec:"c"`
+	FrameId int64 `codec:"c"`
 	Value interface{} `codec:"v"`
 }
 
 type Packet struct {
-	command Command
+	command FrameId
 	id uuid.UUID
 	value interface{}
 }
@@ -62,7 +62,7 @@ func (p *Player) readPacket() (Packet, error) {
 	}
 	fmt.Println(rawPacket)
 	decodedPacket := Packet{
-		command: Command(rawPacket.Command),
+		//command: Command(rawPacket.Command),
 		value: rawPacket.Value,
 		id: p.id,
 	}
@@ -91,19 +91,19 @@ func (p *Player) newPlayer() error {
 	p.id = uuid.NewRandom()
 	go p.drainWrites()
 	for {
-		packet, err := p.readPacket()
+		_, err := p.readPacket()
 		if err != nil {
 			fmt.Println(err)
 			return err
 		}
-		commandAlias := CommandAliases[packet.command]
-		fmt.Printf(
-			"Command: %s for player %s\n",
-			commandAlias.short,
-			packet.id.String(),
-		)
+//		commandAlias := CommandAliases[packet.command]
+		// fmt.Printf(
+		// 	"Command: %s for player %s\n",
+		// 	commandAlias.short,
+		// 	packet.id.String(),
+		// )
 		response := ClientPacket{
-			Command: int64(packet.command),
+			//Command: int64(packet.command),
 			Value: "Loud and clear!",
 		}
 		bytes, err := response.Bytes()
