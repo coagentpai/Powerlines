@@ -5,6 +5,7 @@ import (
 	"os"
 	"fmt"
 	"io"
+	"encoding/hex"
 	"code.google.com/p/go-uuid/uuid"
 	"github.com/ugorji/go/codec"
 )
@@ -34,13 +35,13 @@ type Player struct {
 	stream PacketStream
 }
 
-type PacketRaw struct {
+type ClientPacket struct {
 	Command int64 `codec:"c"`
 	Value interface{} `codec:"v"`
 }
 
 type Packet struct {
-	command uint16
+	command Command
 	id uuid.UUID
 	value interface{}
 }
@@ -50,7 +51,7 @@ func (p *Player) streamDisconnect() {
 }
 
 func (p *Player) readPacket() (Packet, error) {
-	var rawPacket PacketRaw
+	var rawPacket ClientPacket
 	err := p.stream.decoder.Decode(&rawPacket)
 	if err == io.EOF {
 		fmt.Printf("Player %s has disconnected!\n", p.id)
@@ -59,22 +60,52 @@ func (p *Player) readPacket() (Packet, error) {
 	}
 	fmt.Println(rawPacket)
 	decodedPacket := Packet{
-		command: uint16(rawPacket.Command),
+		command: Command(rawPacket.Command),
 		value: rawPacket.Value,
 		id: p.id,
 	}
 	return decodedPacket, nil
 }
 
+func (p *Player) drainWrites() {
+	for {
+		bytes := <- *p.stream.writes
+		fmt.Printf("Sending to player %s\n", p.id)
+		fmt.Println(hex.Dump(bytes))
+		conn := *p.stream.netConn
+		conn.Write(bytes)
+	}
+}
+
+func (packet *ClientPacket) Bytes() ([]byte, error) {
+	var encodedBytes []byte
+	var mh codec.MsgpackHandle
+	enc := codec.NewEncoderBytes(&encodedBytes, &mh)
+	err := enc.Encode(*packet)
+	return encodedBytes, err
+}
+
 func (p *Player) newPlayer() error {
 	p.id = uuid.NewRandom()
+	go p.drainWrites()
 	for {
 		packet, err := p.readPacket()
 		if err != nil {
 			fmt.Println(err)
 			return err
 		}
-		fmt.Printf("command: %d for player %s\n", packet.command, packet.id.String())
+		commandAlias := CommandAliases[packet.command]
+		fmt.Printf(
+			"Command: %s for player %s\n",
+			commandAlias.short,
+			packet.id.String(),
+		)
+		response := ClientPacket{
+			Command: int64(packet.command),
+			Value: "Loud and clear!",
+		}
+		bytes, err := response.Bytes()
+		*p.stream.writes <- bytes
 	}
 	return nil
 }
@@ -86,6 +117,8 @@ func handleConnection(conn net.Conn) {
 	defer conn.Close()
 	newPlayer.stream.netConn = &conn
 	newPlayer.stream.decoder = codec.NewDecoder(conn, &mh)
+	writeChan := make(chan []byte, 10)
+	newPlayer.stream.writes = &writeChan
 	newPlayer.newPlayer()
 }
 
