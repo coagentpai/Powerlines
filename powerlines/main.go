@@ -4,6 +4,8 @@ import (
 	"net"
 	"os"
 	"fmt"
+	"flag"
+	"strconv"
 	"io"
 	"encoding/hex"
 	"code.google.com/p/go-uuid/uuid"
@@ -12,7 +14,7 @@ import (
 
 const (
 	CONN_HOST = ""
-	CONN_PORT = "3333"
+	CONN_PORT = 3333
 	CONN_TYPE = "tcp"
 )
 
@@ -123,15 +125,19 @@ func handleConnection(conn net.Conn) {
 }
 
 func main() {
+	var port int
+	flag.IntVar(&port, "p", CONN_PORT, "Port to listen on")
+	flag.Parse()
+
 	// Listen for incoming connections.
-	l, err := net.Listen(CONN_TYPE, CONN_HOST+":"+CONN_PORT)
+	l, err := net.Listen(CONN_TYPE, CONN_HOST + ":" +  strconv.Itoa(port))
 	if err != nil {
 		fmt.Println("Error listening:", err.Error())
 		os.Exit(1)
 	}
 	// Close the listener when the application closes.
 	defer l.Close()
-	fmt.Println("Listening on " + CONN_HOST + ":" + CONN_PORT)
+	fmt.Println("Listening on " + CONN_HOST + ":" + strconv.Itoa(port))
 	for {
 		// Listen for an incoming connection.
 		conn, err := l.Accept()
