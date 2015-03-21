@@ -3,13 +3,13 @@ package protocol
 import "testing"
 
 func TestCommandAliases(t *testing.T) {
-	for _, frameId := range AllFrameIds {
+	for _, frameId := range AllContainerIds {
 		var inRequests  = false
 		var inResponses = false
-		if _, ok := FrameRequestAliases[frameId]; ok {
+		if _, ok := ContainerRequestAliases[frameId]; ok {
 			inRequests = true
 		}
-		if _, ok := FrameResponseAliases[frameId]; ok {
+		if _, ok := ContainerResponseAliases[frameId]; ok {
 			inResponses = true
 		}
 		if !inResponses && !inRequests {
