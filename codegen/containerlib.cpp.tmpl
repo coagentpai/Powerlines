@@ -13,11 +13,14 @@ This file was automatically generated at {{.TimeStr}}
 {{ range $key, $value := .ResponseAliases }}#define EE{{ $value.Short }} {{ $key }}
 {{ end }}
 
-//Structs for each frame type
-typedef struct {
-{{ range .HelloFields}}    {{.Type}} {{.Name}};
+//Class for each frame type
+{{ range $container := .ReflectedStructs}}
+class EE{{$container.Id}}Container {
+public:
+{{ range $container.Fields}}    {{.Type}} {{.Name}};
+{{end}}    MSGPACK_DEFINE({{range $container.Fields}}{{.Name}},{{end}});
+}
 {{end}}
-} EEHelloFrame;
 
 // Library functions
 void *decodeBuffer(msgpack_sbuffer *buf,  int *frame_id);

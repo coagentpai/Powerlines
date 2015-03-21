@@ -1,4 +1,5 @@
-package main
+package protocol
+
 import "testing"
 
 func TestCommandAliases(t *testing.T) {

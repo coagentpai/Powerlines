@@ -1,9 +1,9 @@
-package main
+package protocol
 
-type FrameId uint16
+type ContainerId uint16
 
 const (
-	HelloRequest FrameId = iota
+	HelloRequest ContainerId = iota
 	GoodbyeRequest
 	WorldInfoRequest
 	PlayerJoinRequest
@@ -22,7 +22,7 @@ const (
 
 const Version = "d19032.1"
 
-var AllFrameIds = []FrameId{
+var AllContainerIds = []ContainerId{
 	HelloRequest,
 	GoodbyeRequest,
 	WorldInfoRequest,
@@ -40,50 +40,50 @@ var AllFrameIds = []FrameId{
 	ReceiveMsgResponse,
 }
 
-type FrameAlias struct {
-	Id FrameId
+type ContainerAlias struct {
+	Id ContainerId
 	Short string
 	Long string
 }
 
-var FrameRequestAliases = map[FrameId]FrameAlias {
-	HelloRequest: FrameAlias{
+var ContainerRequestAliases = map[ContainerId]ContainerAlias {
+	HelloRequest: ContainerAlias{
 	Long:
 		"Say hello to a server",
 	Short:
 		"HelloRequest",
 	},
-    GoodbyeRequest: FrameAlias{
+    GoodbyeRequest: ContainerAlias{
 	Long:
 		"Say goodbye to the server",
 	Short:
 		"GoodbyeRequest",
 	},
-	PlayerJoinRequest: FrameAlias{
+	PlayerJoinRequest: ContainerAlias{
 	Long:
 		"Join the world",
 	Short:
 		"PlayerJoinRequest",
 	},
-	AllPlayersRequest: FrameAlias{
+	AllPlayersRequest: ContainerAlias{
 	Long:
 		"List all connected players",
 	Short:
 		"AllPlayersRequest",
 	},
-	AllPlayersPositionRequest: FrameAlias{
+	AllPlayersPositionRequest: ContainerAlias{
 	Long:
 		"List the position of all players",
 	Short:
 		"AllPlayersPositionRequest",
 	},
-	WorldInfoRequest: FrameAlias{
+	WorldInfoRequest: ContainerAlias{
 	Long:
 		"Return metadata about the current world being played",
 	Short:
 		"WorldInfoRequest",
 	},
-	SendMsgRequest: FrameAlias{
+	SendMsgRequest: ContainerAlias{
 	Long:
 		"Send a message to a player",
 	Short:
@@ -91,50 +91,50 @@ var FrameRequestAliases = map[FrameId]FrameAlias {
 	},
 }
 
-var FrameResponseAliases = map[FrameId]FrameAlias {
-	HelloResponse: FrameAlias{
+var ContainerResponseAliases = map[ContainerId]ContainerAlias {
+	HelloResponse: ContainerAlias{
 	Long:
 		"Say hello to a server",
 	Short:
 		"HelloResponse",
 	},
-    GoodbyeResponse: FrameAlias{
+    GoodbyeResponse: ContainerAlias{
 	Long:
 		"Say goodbye to the server",
 	Short:
 		"GoodbyeResponse",
 	},
-	PlayerJoinResponse: FrameAlias{
+	PlayerJoinResponse: ContainerAlias{
 	Long:
 		"Join the world",
 	Short:
 		"PlayerJoinResponse",
 	},
-	AllPlayersResponse: FrameAlias{
+	AllPlayersResponse: ContainerAlias{
 	Long:
 		"List all connected players",
 	Short:
 		"AllPlayersResponse",
 	},
-	AllPlayersPositionResponse: FrameAlias{
+	AllPlayersPositionResponse: ContainerAlias{
 	Long:
 		"List the position of all players",
 	Short:
 		"AllPlayersPositionResponse",
 	},
-	WorldInfoResponse: FrameAlias{
+	WorldInfoResponse: ContainerAlias{
 	Long:
 		"Return metadata about the current world being played",
 	Short:
 		"WorldInfoResponse",
 	},
-	SendMsgResponse: FrameAlias{
+	SendMsgResponse: ContainerAlias{
 	Long:
 		"Send a message to a player",
 	Short:
 		"SendMsgResponse",
 	},
-	ReceiveMsgResponse: FrameAlias{
+	ReceiveMsgResponse: ContainerAlias{
 	Long:
 		"Receive a message",
 	Short:
@@ -142,22 +142,28 @@ var FrameResponseAliases = map[FrameId]FrameAlias {
 	},
 }
 
-type HelloRequestFrame struct {
-	Version string `codec:"version"`
+type HelloRequestContainer struct {
+	Version string `frame:"version"`
 }
 
-type HelloResponseFrame struct {
-	Version string `codec:"version"`
-	PlayersOnline uint8 `codec:"online"`
-	PlayerCapacity uint8 `codec:"capacity"`
+type HelloResponseContainer struct {
+	Version string `frame:"version"`
+	PlayersOnline uint16 `frame:"online"`
+	PlayerCapacity uint16 `frame:"capacity"`
 }
+
+var ContainerStructMap = map[ContainerId]interface{}{
+	HelloResponse: HelloResponseContainer{},
+	HelloRequest: HelloRequestContainer{},
+}
+
 
 func init() {
-	for id, alias := range FrameResponseAliases {
+	for id, alias := range ContainerResponseAliases {
 		alias.Id = id
 	}
 
-	for id, alias := range FrameRequestAliases {
+	for id, alias := range ContainerRequestAliases {
 		alias.Id = id
 	}
 }
