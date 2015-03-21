@@ -11,6 +11,13 @@ import (
 	"fmt"
 )
 
+type Direction uint8
+
+const (
+	Response Direction = iota
+	Request
+)
+
 type ReflectedField struct {
 	Name, Type string
 }
@@ -19,6 +26,7 @@ type ReflectedStruct struct {
 	Name string
 	Id protocol.ContainerId
 	Fields []ReflectedField
+	FrameDirection Direction
 }
 
 
@@ -39,6 +47,15 @@ var generatedTypes = map[string]string{
 	"uint32": "uint32_t",
 	"slice":  "std::vec",
 	"map": "std::map",
+}
+
+func (rs *ReflectedStruct) IsResponse() bool {
+	return rs.FrameDirection == Response
+}
+
+
+func (rs *ReflectedStruct) IsRequest() bool {
+	return rs.FrameDirection == Request
 }
 
 
@@ -127,10 +144,24 @@ func main() {
 	for _,id := range protocol.AllContainerIds {
 		if container, ok := protocol.ContainerStructMap[id]; ok {
 			fields := reflectStruct(container, &kindChan)
+			var structName string
+			var direction Direction
+			if alias, ok := protocol.ContainerRequestAliases[id]; ok {
+				structName = alias.Short
+				direction = Request
+			}
+			if alias, ok := protocol.ContainerResponseAliases[id]; ok {
+				structName = alias.Short
+				direction = Response
+			}
+			if structName == "" {
+				panic(fmt.Errorf("No name set for struct: %d", id ))
+			}
 			reflectedStructs = append(reflectedStructs, ReflectedStruct{
 				Fields: fields,
-				Name: "dkjdasl",
+				Name: structName,
 				Id: id,
+				FrameDirection: direction,
 			})
 		}
 	}

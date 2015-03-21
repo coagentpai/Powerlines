@@ -2,26 +2,55 @@
 This file was automatically generated at {{.TimeStr}}
 */
 #include <stdint.h>
+#include <string>
 
-#define EEFrameVersion "{{ .Version }}"
+#include <msgpack.hpp>
 
-// FrameIds of all request frames
-{{ range $key, $value := .RequestAliases }}#define EE{{ $value.Short }} {{ $key }}
+const std::string EEContainerVersion = "{{ .Version }}";
+
+// ContainerIds of all request containers
+{{ range $key, $value := .RequestAliases }}const uint16_t EE{{ $value.Short }}Id = {{ $key }};
 {{ end }}
 
-// FrameIds of all response frames
-{{ range $key, $value := .ResponseAliases }}#define EE{{ $value.Short }} {{ $key }}
+// ContainerIds of all response containers
+{{ range $key, $value := .ResponseAliases }}const uint16_t EE{{ $value.Short }}Id = {{ $key }};
 {{ end }}
 
-//Class for each frame type
-{{ range $container := .ReflectedStructs}}
-class EE{{$container.Id}}Container {
+class EEContainer {
+      public:
+        EEContainer(uint16_t containerId) : containerId(containerId){};
+      protected:
+        uint16_t containerId;
+};
+
+//Class for each frame type{{ range $container := .ReflectedStructs}}
+class EE{{$container.Name}}Container : EEContainer {
 public:
 {{ range $container.Fields}}    {{.Type}} {{.Name}};
-{{end}}    MSGPACK_DEFINE({{range $container.Fields}}{{.Name}},{{end}});
-}
+{{end}}    MSGPACK_DEFINE({{ range $index, $field := $container.Fields}}{{if $index}},{{end}}{{$field.Name}}{{end}});
+    EE{{$container.Name}}Container({{ range $index, $field := $container.Fields}}{{if $index}},{{end}}{{$field.Type}}{{end}}) : EEContainer(EE{{ $container.Name }}Id), {{ range $index, $field := $container.Fields}}{{if $index}}, {{end}}{{$field.Name}}({{$field.Name}}){{end}}{};
+    EE{{$container.Name}}Container() : EEContainer(EE{{ $container.Name }}Id){};
+};
 {{end}}
 
-// Library functions
-void *decodeBuffer(msgpack_sbuffer *buf,  int *frame_id);
+{{ range $container := .ReflectedStructs}}{{ if $container.IsResponse }}
+static EEContainer *decodeContainerAs{{$container.Name}}(msgpack::object *obj) {
+     EE{{$container.Name}}Container *containerPtr = new EE{{$container.Name}}Container();
+     (*obj).convert(containerPtr);
+     return (EEContainer *)containerPtr;
+}
+{{end}}{{end}}
 
+EEContainer *decodeFrame(uint16_t containerId, msgpack::sbuffer *buf) {
+     msgpack::unpacked msg;
+     msgpack::unpack(&msg, buf->data(), buf->size());
+
+     msgpack::object obj = msg.get();
+     switch(containerId) {
+     {{ range $container := .ReflectedStructs}}{{ if $container.IsResponse }}
+     case EE{{$container.Name}}Id:
+          return decodeContainerAs{{$container.Name}}(&obj);
+     {{end}}{{end}}
+     }
+     return NULL;
+}
