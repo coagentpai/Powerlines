@@ -7,7 +7,7 @@ import (
 	"time"
 	"encoding/hex"
 	"crypto/sha256"
-	"github.com/coagentpai/Powerlines/protocol"
+	"github.com/karlbloedorn/Powerlines/protocol"
 	"fmt"
 )
 
